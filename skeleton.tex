@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass{standalone}
 
 \usepackage{dot2texi}
 \usepackage{tikz}
@@ -11,6 +11,7 @@
 \begin{document}
 \begin{dot2tex}[tikz,options=-t math]
 digraph G {
+compound=true;
 GRAPHVIZCODE
 }
 \end{dot2tex}
