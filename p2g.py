@@ -3,10 +3,11 @@ from collections import OrderedDict
 import os
 
 class Proof:
-	def __init__(self):
+	def __init__(self, isWithHook = False):
 		self.nodes = OrderedDict()
-		idHook = generateId()
-		self.nodes[idHook] = ""
+		if isWithHook:
+			idHook = generateId()
+			self.nodes[idHook] = ""
 		self.edges = []
 		self.edgesProofOf = []
 		self.lastid = None
@@ -42,13 +43,13 @@ class Proof:
 			elif value == "":
 				lines.append(f'{key}  [label="" color="blue"];')
 			else:
-				lines.append(f'{key}  [label="\\text{{{value}}}"];')
+				lines.append(f'{key}  [label="\\text{{{value}}}"  shape=none];')
 
 		for (id1, id2) in self.edges:
 			lines.append(f'{id1} -> {id2};')
 
 		for (idcluster1, id1, id2) in self.edgesProofOf:
-			lines.append(f'{id1} -> {id2} [ltail="{idcluster1}",dir=none color="blue",style="dashed"];')
+			lines.append(f'{id2} -> {id1} [lhead="{idcluster1}",dir=none color="blue",style="dashed"];')
 
 		return "\n".join(lines)
 
@@ -68,8 +69,8 @@ print(re.match(reStatementById, "azeazeaze by (miaou)   (id)  ").groups())
 print(re.match(reStatementId, "Lemma. $a^2$ even implies $a$ even.            (lemma)  ").groups())
 
 
-def linesToProof(lines):
-	proof = Proof()
+def linesToProof(lines, depth = 0):
+	proof = Proof(depth > 0)
 	while(len(lines) > 0):
 		line = lines[0][0:len(lines[0])-1].strip()
 		lines.pop(0)
@@ -79,55 +80,42 @@ def linesToProof(lines):
 		
 		print(line)
 		if line == "{":
-			proof.addProof(generateId(), linesToProof(lines))
+			proof.addProof(generateId(), linesToProof(lines, depth+1))
 		elif line == "}":
 			return proof
 		else:
-			result = re.match(reStatementById, line)
-			if result:
-				id = result.groups()[3]
-				by = result.groups()[1]
-				statement = result.groups()[0]
-				proof.addStatement(id, statement )
 
-				for byid in by.split(','):
-						proof.addEdge(byid, id)
-			else:
-				result = re.match(reStatementBy, line)
-
+			def extractInfo(line):
+				result = re.match(reStatementById, line)
 				if result:
-					id = generateId()
-					by = result.groups()[1]
-					statement = result.groups()[0]
-					proof.addStatement(id, statement)
-					for byid in by.split(','):
-						proof.addEdge(byid, id)
+					return result.groups()[0], result.groups()[3], result.groups()[1]
 				else:
-					result = re.match(reStatementId, line)
+					result = re.match(reStatementBy, line)
 					if result:
-						id = result.groups()[1]
-						statement = result.groups()[0]						
-						proof.addStatement(id, statement)
-					else:
-						id = generateId()
-						statement = line
-						proof.addStatement(id, statement)
-		
+						return result.groups()[0], generateId(), result.groups()[1]
+					else: 
+						result = re.match(reStatementId, line)
+						if result:
+							return result.groups()[0], result.groups()[1], []
+						else:
+							return line, generateId(), None
+
+			statement, id, by = extractInfo(line)
+			
+			proof.addStatement(id, statement )
+
+			if by:
+				for byid in by.split(','):
+					proof.addEdge(byid, id)
+			
 
 	return proof
 
 def toTex(innerDot):
 	f = open("skeleton.tex", "r")
 	lines = f.readlines()
-	str = ""
-
-	for line in lines:
-		if line.strip() == "GRAPHVIZCODE":
-			str += innerDot
-		else:
-			str += line
-	return str
-
+	return "".join(map(lambda line: innerDot if line.strip() == "GRAPHVIZCODE" else line, lines))
+	
 inputFile = open("sqrt2irrational.proof", "r")
 lines = inputFile.readlines()
 inputFile.close()
@@ -138,4 +126,3 @@ outputFile = open("out.tex", "w")
 outputFile.writelines(texCode)
 outputFile.close()
 os.system("pdflatex --shell-escape out.tex")
-
