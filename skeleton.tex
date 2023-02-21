@@ -1,0 +1,18 @@
+\documentclass{article}
+
+\usepackage{dot2texi}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usetikzlibrary{shapes,arrows}
+\makeatletter
+\@ifundefined{verbatim@out}{\newwrite\verbatim@out}{}
+\makeatother
+
+\begin{document}
+\begin{dot2tex}[tikz,options=-t math]
+digraph G {
+GRAPHVIZCODE
+}
+\end{dot2tex}
+\end{document}
+
