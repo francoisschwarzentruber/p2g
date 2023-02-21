@@ -1,0 +1,24 @@
+$\sqrt 2$ is irrational.
+{
+	$a^2$ even implies $a$ even.            (lemma)
+	{
+		Suppose $a$ is odd.
+		$a = 2k+1$ for some integer $k$
+		$a^2 = 4k^2+4k+1$
+		$a^2$ is odd
+	}
+	Suppose that $\sqrt 2$ rational.
+	$\sqrt 2 = \frac a b$ irreducible, for some integers $a$ and $b$.         (irreducible)
+	$\sqrt 2 = \frac a b$ 
+	$2 = \left(\frac {a} b\right)^2$
+	$2 = \frac {a^2} {b^2}$
+	$2b^2 = a^2$                 (m2ba2)
+	$a^2$ is even.
+	$a$ is even.                 by (lemma) (aeven)
+	$a = 2k$ for some $k$
+	$2b^2 = 4k^2$       by (m2ba2)
+	$b^2 = 2k^2$
+	$b^2$ is even
+	$b$ is even          by (lemma)  (beven)
+	Contradiction        by (irreducible,aeven)
+}
